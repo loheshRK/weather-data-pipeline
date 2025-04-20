@@ -121,6 +121,4 @@ pgAdmin ile tabloyu görüntüleyebilir veya sorgulayabilirsiniz.
 
 ---
 
-## 📝 Lisans
-MIT Lisansı © 2025 Your Name
 
