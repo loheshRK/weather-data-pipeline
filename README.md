@@ -6,7 +6,7 @@
 ---
 
 ## 🎯 Amaç
-Açık‑hava (OpenWeather) API’sinden saatlik hava durumu verilerini çekip:
+OpenWeather API’sinden saatlik hava durumu verilerini çekip:
 1. Spark üzerinde işleyerek dönüştürmek,
 2. PostgreSQL veritabanına yüklemek,
 3. Tüm süreci Airflow DAG’ıyla orkestre etmek.
@@ -21,15 +21,13 @@ Projeyi **Docker Compose** ile tek komutla ayağa kaldırabilir; Portainer & pg
 │   └── weather_etl.py
 ├── spark-app/                # Spark uygulaması & submit script
 │   ├── weather_transform.py
-│   └── weather-submit.sh
+│   └── weather-submit
 ├── postgres/
-│   └── init.db               # Başlangıç şeması & tablo oluşturma
-├── env/
-│   └── .env.example          # Ortam değişkeni şablonu
+│   └── init.sql              # Başlangıç şeması & tablo oluşturma
 ├── diagrams/
-│   └── architecture.png      # Mimari diyagram
+│   └── weather-pipeline.png  # Mimari diyagram
 ├── Dockerfile                # Airflow image’i için
-├── docker-compose.yml        # Tüm servis tanımları
+├── docker-compose.yaml       # Tüm servis tanımları
 └── README.md
 ```
 
@@ -41,7 +39,7 @@ Projeyi **Docker Compose** ile tek komutla ayağa kaldırabilir; Portainer & pg
 $ git clone https://github.com/eqselans/weather-data-pipeline weather-pipeline && cd weather-pipeline
 
 # 2) Ortam değişkenlerini ayarla
-# .env içinde OPENWEATHER_API_KEY vb. değerleri doldur
+# .env içinde WEATHER_API_KEY vb. değerleri doldur
 
 # 3) Servisleri başlat
 $ docker compose up -d --build
@@ -49,6 +47,9 @@ $ docker compose up -d --build
 # 4) Airflow UI (localhost:8080) -> admin / admin
 #    Portainer   (localhost:9000)
 #    pgAdmin     (localhost:5050) -> pgadmin@example.com / admin
+
+# 5) Airflow Scheduler servisini başlat
+$ airflow scheduler 
 ```
 
 ### Servis Portları
@@ -75,10 +76,10 @@ $ docker compose up -d --build
 
 ## 🔥 Spark Uygulaması
 * `weather_transform.py` → JSON verilerini DataFrame’e çevirir, kolon tiplerini dönüştürür, timestamp ekler.
-* `spark-submit` parametreleri `weather-submit.sh` içinde tanımlı:
+* `spark-submit` parametreleri `weather-submit` içinde tanımlı:
   * `--master spark://spark-master:7077`
   * Maven paketi: `org.postgresql:postgresql:42.7.3`
-* Ortam değişkeni `OPENWEATHER_API_KEY` Spark driver’a `docker exec -e` ile iletilir.
+* Ortam değişkeni `WEATHER_API_KEY` Spark driver’a `docker exec -e` ile iletilir.
 
 ---
 
