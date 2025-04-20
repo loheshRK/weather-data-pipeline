@@ -1,7 +1,7 @@
 # Weather Data Pipeline Project  
 <sub>Apache Airflow • Apache Spark • PostgreSQL • Docker Compose</sub>
 
-![Architecture diagram](diagrams/architecture.png)
+![Architecture diagram](diagrams/weather-pipeline.png)
 
 ---
 
